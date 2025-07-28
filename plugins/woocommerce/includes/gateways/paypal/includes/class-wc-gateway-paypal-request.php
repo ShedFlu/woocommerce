@@ -127,8 +127,6 @@ class WC_Gateway_Paypal_Request {
 				)
 			);
 
-			/* phpcs:disable Generic.Commenting.Todo.TaskFound,Squiz.PHP.CommentedOutCode.Found
-			// TODO: Uncomment when the wpcom endpoint is ready.
 			$response = Jetpack_Connection_Client::wpcom_json_api_request_as_blog(
 				'/wc-gateway-paypal-proxy/create-order',
 				2,
@@ -139,7 +137,6 @@ class WC_Gateway_Paypal_Request {
 				wp_json_encode( $request_body ),
 				'wpcom'
 			);
-			*/
 
 			if ( is_wp_error( $response ) ) {
 				throw new Exception( 'PayPal order creation failed. Response error: ' . $response->get_error_message() );
@@ -207,9 +204,19 @@ class WC_Gateway_Paypal_Request {
 				)
 			);
 
+			$response = Jetpack_Connection_Client::wpcom_json_api_request_as_blog(
+				'/wc-gateway-paypal-proxy/capture-payment',
+				2,
+				array(
+					'headers' => array( 'Content-Type' => 'application/json' ),
+					'method'  => 'POST',
+				),
+				wp_json_encode( $request_body ),
+				'wpcom'
+			);
+
 			if ( is_wp_error( $response ) ) {
-				WC_Gateway_Paypal::log( 'PayPal capture payment request failed. Response error: ' . $response->get_error_message() );
-				return;
+				throw new Exception( 'PayPal capture payment request failed. Response error: ' . $response->get_error_message() );
 			}
 
 			$http_code = wp_remote_retrieve_response_code( $response );
